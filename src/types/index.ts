@@ -10,7 +10,6 @@ export interface Lead {
   call_status?: 'pending' | 'no_answer' | 'appointment_scheduled' | 'agreed' | 'not_interested';
   contact_person?: string;
   notes?: string;
-  appointment_date?: string;
   created_at: string;
   updated_at: string;
 }

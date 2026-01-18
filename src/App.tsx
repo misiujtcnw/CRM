@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import { LayoutDashboard, Users, UserPlus, Settings, LogOut, Layers, Upload } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, Settings, LogOut } from 'lucide-react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
-import Leads from './components/Leads';
-import ImportData from './components/ImportData';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -35,13 +33,7 @@ function App() {
   const navigationItems = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'clients', name: 'Klienci', icon: Users },
-    { id: 'leads-all', name: 'Wszystkie Leady', icon: Layers, isSubItem: false },
-    { id: 'leads-new', name: 'Nowe Leady', icon: UserPlus, isSubItem: true },
-    { id: 'leads-no-answer', name: 'Nie Odebrał', icon: UserPlus, isSubItem: true },
-    { id: 'leads-appointment', name: 'Umówiona Rozmowa', icon: UserPlus, isSubItem: true },
-    { id: 'leads-agreed', name: 'Zgodził Się', icon: UserPlus, isSubItem: true },
-    { id: 'leads-not-interested', name: 'Nie Jest Zainteresowany', icon: UserPlus, isSubItem: true },
-    { id: 'import-data', name: 'Import danych', icon: Upload },
+    { id: 'leads', name: 'Leady', icon: UserPlus },
     { id: 'settings', name: 'Ustawienia', icon: Settings },
   ];
 
@@ -56,20 +48,13 @@ function App() {
             <p className="text-slate-400">Sekcja w budowie</p>
           </div>
         );
-      case 'leads-all':
-        return <Leads filter="all" />;
-      case 'leads-new':
-        return <Leads filter="new" />;
-      case 'leads-no-answer':
-        return <Leads filter="no_answer" />;
-      case 'leads-appointment':
-        return <Leads filter="appointment" />;
-      case 'leads-agreed':
-        return <Leads filter="agreed" />;
-      case 'leads-not-interested':
-        return <Leads filter="not_interested" />;
-      case 'import-data':
-        return <ImportData />;
+      case 'leads':
+        return (
+          <div className="text-white text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">Leady</h2>
+            <p className="text-slate-400">Sekcja w budowie</p>
+          </div>
+        );
       case 'settings':
         return (
           <div className="text-white text-center py-12">
@@ -116,27 +101,22 @@ function App() {
             </div>
           </div>
 
-          <nav className="space-y-1 flex-1">
+          <nav className="space-y-2 flex-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;
-
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentPage(item.id)}
-                  className={`w-full flex items-center gap-3 ${
-                    item.isSubItem ? 'pl-8 pr-4 py-2' : 'px-4 py-3'
-                  } rounded-xl transition-all duration-300 ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                     isActive
                       ? 'bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-500/30'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span className={item.isSubItem ? 'text-sm font-normal' : 'font-medium'}>
-                    {item.name}
-                  </span>
+                  <Icon className="w-5 h-5" />
+                  <span className="font-medium">{item.name}</span>
                 </button>
               );
             })}
