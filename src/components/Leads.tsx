@@ -14,7 +14,6 @@ export default function Leads({ filter = 'all' }: LeadsProps) {
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     loadLeads();
@@ -132,7 +131,7 @@ export default function Leads({ filter = 'all' }: LeadsProps) {
           </p>
         </div>
         <button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => alert('Dodawanie leadów będzie dostępne wkrótce')}
           className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-violet-500 text-white font-medium hover:scale-105 transition-all duration-300 shadow-lg shadow-blue-500/30"
         >
           <Plus className="w-5 h-5" />
