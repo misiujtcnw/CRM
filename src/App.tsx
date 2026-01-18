@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import { LayoutDashboard, Users, UserPlus, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, Settings, LogOut, ChevronDown, ChevronRight } from 'lucide-react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 
@@ -9,6 +9,8 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [leadsMenuOpen, setLeadsMenuOpen] = useState(false);
+  const [selectedLeadFilter, setSelectedLeadFilter] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -37,6 +39,20 @@ function App() {
     { id: 'settings', name: 'Ustawienia', icon: Settings },
   ];
 
+  const leadFilters = [
+    { id: 'all', name: 'Wszystkie Leady', filter: null },
+    { id: 'new', name: 'Nowe Leady', filter: 'new' },
+    { id: 'no_answer', name: 'Nie Odebrał', filter: 'no_answer' },
+    { id: 'appointment', name: 'Umówione Rozmowy', filter: 'appointment_scheduled' },
+    { id: 'agreed', name: 'Zgodził Się', filter: 'agreed' },
+    { id: 'not_interested', name: 'Nie Zainteresowany', filter: 'not_interested' },
+  ];
+
+  const getFilterLabel = (filter: string) => {
+    const found = leadFilters.find(f => f.filter === filter);
+    return found ? found.name : 'Wszystkie Leady';
+  };
+
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
@@ -51,7 +67,9 @@ function App() {
       case 'leads':
         return (
           <div className="text-white text-center py-12">
-            <h2 className="text-2xl font-bold mb-4">Leady</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Leady {selectedLeadFilter && `- ${getFilterLabel(selectedLeadFilter)}`}
+            </h2>
             <p className="text-slate-400">Sekcja w budowie</p>
           </div>
         );
@@ -105,6 +123,62 @@ function App() {
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;
+
+              if (item.id === 'leads') {
+                return (
+                  <div key={item.id} className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setCurrentPage(item.id);
+                        setLeadsMenuOpen(!leadsMenuOpen);
+                      }}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-500/30'
+                          : 'text-slate-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium flex-1 text-left">{item.name}</span>
+                      {leadsMenuOpen ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </button>
+
+                    {leadsMenuOpen && (
+                      <div className="ml-4 space-y-1 mt-2">
+                        {leadFilters.map((filter) => (
+                          <button
+                            key={filter.id}
+                            onClick={() => {
+                              setCurrentPage('leads');
+                              setSelectedLeadFilter(filter.filter);
+                            }}
+                            className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm ${
+                              selectedLeadFilter === filter.filter
+                                ? 'bg-white/10 text-white'
+                                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                            }`}
+                          >
+                            <div className={`w-2 h-2 rounded-full ${
+                              filter.id === 'new' ? 'bg-green-400' :
+                              filter.id === 'no_answer' ? 'bg-yellow-400' :
+                              filter.id === 'appointment' ? 'bg-blue-400' :
+                              filter.id === 'agreed' ? 'bg-emerald-400' :
+                              filter.id === 'not_interested' ? 'bg-red-400' :
+                              'bg-slate-400'
+                            }`} />
+                            <span>{filter.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <button
                   key={item.id}
