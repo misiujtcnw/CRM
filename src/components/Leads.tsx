@@ -14,14 +14,23 @@ export default function Leads({ filter = 'all' }: LeadsProps) {
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split('T')[0]
+  );
 
   useEffect(() => {
     loadLeads();
   }, []);
 
   useEffect(() => {
+    if (filter === 'appointment') {
+      setSelectedDate(new Date().toISOString().split('T')[0]);
+    }
+  }, [filter]);
+
+  useEffect(() => {
     applyFilters();
-  }, [leads, filter, searchQuery]);
+  }, [leads, filter, searchQuery, selectedDate]);
 
   const loadLeads = async () => {
     try {
@@ -61,7 +70,12 @@ export default function Leads({ filter = 'all' }: LeadsProps) {
         filtered = filtered.filter((l) => l.call_status === 'no_answer');
         break;
       case 'appointment':
-        filtered = filtered.filter((l) => l.call_status === 'appointment_scheduled');
+        filtered = filtered.filter((l) => {
+          if (l.call_status !== 'appointment_scheduled') return false;
+          if (!l.appointment_date) return true;
+          const appointmentDate = new Date(l.appointment_date).toISOString().split('T')[0];
+          return appointmentDate === selectedDate;
+        });
         break;
       case 'agreed':
         filtered = filtered.filter((l) => l.call_status === 'agreed');
@@ -150,6 +164,19 @@ export default function Leads({ filter = 'all' }: LeadsProps) {
             className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
           />
         </div>
+
+        {filter === 'appointment' && (
+          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+            <Calendar className="w-5 h-5 text-slate-400" />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-transparent text-white focus:outline-none cursor-pointer"
+            />
+          </div>
+        )}
+
         <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all">
           <Filter className="w-5 h-5" />
           Filtry
