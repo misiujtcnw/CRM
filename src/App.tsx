@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import { LayoutDashboard, Users, UserPlus, Settings, LogOut, Layers } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, Settings, LogOut, Layers, Upload } from 'lucide-react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Leads from './components/Leads';
+import ImportData from './components/ImportData';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,6 +41,7 @@ function App() {
     { id: 'leads-appointment', name: 'Umówiona Rozmowa', icon: UserPlus, isSubItem: true },
     { id: 'leads-agreed', name: 'Zgodził Się', icon: UserPlus, isSubItem: true },
     { id: 'leads-not-interested', name: 'Nie Jest Zainteresowany', icon: UserPlus, isSubItem: true },
+    { id: 'import-data', name: 'Import danych', icon: Upload },
     { id: 'settings', name: 'Ustawienia', icon: Settings },
   ];
 
@@ -66,6 +68,8 @@ function App() {
         return <Leads filter="agreed" />;
       case 'leads-not-interested':
         return <Leads filter="not_interested" />;
+      case 'import-data':
+        return <ImportData />;
       case 'settings':
         return (
           <div className="text-white text-center py-12">
