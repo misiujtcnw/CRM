@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { User } from '@supabase/supabase-js';
-import { LayoutDashboard, Users, UserPlus, Settings, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { LayoutDashboard, Users, UserPlus, Settings, LogOut, Layers } from 'lucide-react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Leads from './components/Leads';
@@ -10,7 +10,6 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
-  const [leadsDropdownOpen, setLeadsDropdownOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -35,7 +34,12 @@ function App() {
   const navigationItems = [
     { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
     { id: 'clients', name: 'Klienci', icon: Users },
-    { id: 'leads', name: 'Leady', icon: UserPlus },
+    { id: 'leads-all', name: 'Wszystkie Leady', icon: Layers, isSubItem: false },
+    { id: 'leads-new', name: 'Nowe Leady', icon: UserPlus, isSubItem: true },
+    { id: 'leads-no-answer', name: 'Nie Odebrał', icon: UserPlus, isSubItem: true },
+    { id: 'leads-appointment', name: 'Umówiona Rozmowa', icon: UserPlus, isSubItem: true },
+    { id: 'leads-agreed', name: 'Zgodził Się', icon: UserPlus, isSubItem: true },
+    { id: 'leads-not-interested', name: 'Nie Jest Zainteresowany', icon: UserPlus, isSubItem: true },
     { id: 'settings', name: 'Ustawienia', icon: Settings },
   ];
 
@@ -108,79 +112,27 @@ function App() {
             </div>
           </div>
 
-          <nav className="space-y-2 flex-1">
+          <nav className="space-y-1 flex-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPage === item.id;
-              const isLeadsActive = currentPage.startsWith('leads-');
-
-              if (item.id === 'leads') {
-                return (
-                  <div key={item.id} className="space-y-1">
-                    <button
-                      onClick={() => {
-                        setLeadsDropdownOpen(!leadsDropdownOpen);
-                        if (!leadsDropdownOpen) {
-                          setCurrentPage('leads-all');
-                        }
-                      }}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 ${
-                        isLeadsActive
-                          ? 'bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-500/30'
-                          : 'text-slate-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Icon className="w-5 h-5" />
-                        <span className="font-medium">{item.name}</span>
-                      </div>
-                      {leadsDropdownOpen ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </button>
-
-                    {leadsDropdownOpen && (
-                      <div className="ml-4 space-y-1 animate-scale-in">
-                        {[
-                          { id: 'leads-all', name: 'Wszystkie Leady' },
-                          { id: 'leads-new', name: 'Nowe Leady' },
-                          { id: 'leads-no-answer', name: 'Nie Odebrał' },
-                          { id: 'leads-appointment', name: 'Umówiona Rozmowa' },
-                          { id: 'leads-agreed', name: 'Zgodził Się' },
-                          { id: 'leads-not-interested', name: 'Nie Jest Zainteresowany' },
-                        ].map((subItem) => (
-                          <button
-                            key={subItem.id}
-                            onClick={() => setCurrentPage(subItem.id)}
-                            className={`w-full text-left px-4 py-2 rounded-lg transition-all duration-300 text-sm ${
-                              currentPage === subItem.id
-                                ? 'bg-white/10 text-white font-medium'
-                                : 'text-slate-400 hover:text-white hover:bg-white/5'
-                            }`}
-                          >
-                            {subItem.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              }
 
               return (
                 <button
                   key={item.id}
                   onClick={() => setCurrentPage(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                  className={`w-full flex items-center gap-3 ${
+                    item.isSubItem ? 'pl-8 pr-4 py-2' : 'px-4 py-3'
+                  } rounded-xl transition-all duration-300 ${
                     isActive
                       ? 'bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg shadow-blue-500/30'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
+                  <Icon className="w-4 h-4" />
+                  <span className={item.isSubItem ? 'text-sm font-normal' : 'font-medium'}>
+                    {item.name}
+                  </span>
                 </button>
               );
             })}
